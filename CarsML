@@ -1,0 +1,50 @@
+import pandas as pd
+df=pd.read_csv("car_main.csv")
+df.head(5)
+
+import numpy as np
+numerical = df.select_dtypes(include=np.number)
+categorical=df.select_dtypes(exclude=np.number)
+
+numerical=numerical.drop(["Owner"],1)
+
+df_n = np.log(numerical)
+
+df_n.head(20)
+
+df=df.drop(["Selling_Price","Present_Price","Kms_Driven","Year"],1)
+
+df_new=pd.concat([df,df_n],1)
+
+X=df_new.drop(["Selling_Price"],1)
+
+X=pd.get_dummies(X)
+
+y=df_new["Selling_Price"]
+
+from sklearn.model_selection import train_test_split as tts
+X_train, X_test, y_train, y_test = tts(X, y, test_size=0.33, random_state=42)
+
+
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import cross_val_score
+
+rr = Ridge(alpha=0.01)
+rr.fit(X_train, y_train)
+rr.score(X_test, y_test)
+
+from sklearn.linear_model import RidgeCV
+clf = RidgeCV(alphas=[1e-3, 1e-2, 1e-1, 1]).fit(X, y)
+
+clf.score(X,y)
+
+from sklearn.linear_model import Lasso
+
+la = Lasso(alpha=0.01)
+la.fit(X_train, y_train)
+la.score(X_test, y_test)
+
+from sklearn.linear_model import LassoCV
+lav = LassoCV(alphas=[1e-3, 1e-2, 1e-1, 1]).fit(X,y)
+
+la.score(X,y)
